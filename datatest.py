@@ -200,3 +200,33 @@ rf_importance = pd.Series(
 ).sort_values(ascending=False)
 
 print(rf_importance)
+
+from xgboost import XGBClassifier
+
+xgb = XGBClassifier(
+    n_estimators=300,
+    max_depth=4,
+    learning_rate=0.05,
+    subsample=0.8,
+    colsample_bytree=0.8,
+    eval_metric="logloss",
+    random_state=42
+)
+
+xgb.fit(X_train, y_train)
+
+y_pred_xgb = xgb.predict(X_test)
+y_prob_xgb = xgb.predict_proba(X_test)[:, 1]
+from sklearn.metrics import confusion_matrix, classification_report
+
+print("Boosting Model")
+print(confusion_matrix(y_test, y_pred_xgb))
+print(classification_report(y_test, y_pred_xgb))
+from sklearn.metrics import confusion_matrix, classification_report
+
+xgb_importance = pd.Series(
+    xgb.feature_importances_,
+    index=X.columns
+).sort_values(ascending=False)
+
+print(xgb_importance)
