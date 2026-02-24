@@ -1,6 +1,6 @@
 # Data-Centric Churn Prediction with Error Analysis
 
-**Predict customer churn and diagnose why models fail, not just how they perform.**
+
 
 ---
 
