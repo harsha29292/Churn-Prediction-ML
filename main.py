@@ -230,3 +230,41 @@ xgb_importance = pd.Series(
 ).sort_values(ascending=False)
 
 print(xgb_importance)
+
+
+# Get test indices
+test_idx = X_test.index
+
+error_df = df.loc[test_idx].copy()
+error_df["y_true"] = y_test.values
+error_df["y_pred"] = y_pred_xgb
+error_df["y_prob"] = y_prob_xgb
+def error_type(row):
+    if row.y_true == 1 and row.y_pred == 0:
+        return "FN"
+    if row.y_true == 0 and row.y_pred == 1:
+        return "FP"
+    if row.y_true == 1 and row.y_pred == 1:
+        return "TP"
+    return "TN"
+
+error_df["error_type"] = error_df.apply(error_type, axis=1)
+
+print(error_df["error_type"].value_counts())
+
+
+print(error_df[error_df["error_type"] == "FN"]["tenure"].describe())
+
+print(error_df[error_df["error_type"] == "TP"]["tenure"].describe())
+
+
+print(pd.crosstab(
+    error_df["error_type"],
+    error_df["Contract"],
+    normalize="index"
+))
+
+
+print(error_df[error_df["error_type"] == "FN"]["MonthlyCharges"].describe())
+print(error_df.groupby("error_type")[["tenure", "MonthlyCharges"]].mean())
+print(error_df[error_df["error_type"] == "FN"]["y_prob"].describe())
