@@ -123,15 +123,80 @@ lr = LogisticRegression(max_iter=1000)
 lr.fit(X_train_scaled, y_train)
 
 y_pred = lr.predict(X_test_scaled)
-y_prob = lr.predict_proba(X_test_scaled)[:, 
+y_prob = lr.predict_proba(X_test_scaled)[:, 1]
 
 from sklearn.metrics import confusion_matrix
 
 cm = confusion_matrix(y_test, y_pred)
-print(cm)00
+print(cm)
 from sklearn.metrics import classification_report
 
 print(classification_report(y_test, y_pred))
 import numpy as np
 
 print(np.percentile(y_prob, [10, 50, 90]))
+
+
+from sklearn.tree import DecisionTreeClassifier
+
+tree_shallow = DecisionTreeClassifier(
+    max_depth=3,
+    random_state=42
+)
+
+tree_shallow.fit(X_train, y_train)
+
+y_pred_shallow = tree_shallow.predict(X_test)
+from sklearn.metrics import classification_report, confusion_matrix
+
+print("Shallow Tree")
+print(confusion_matrix(y_test, y_pred_shallow))
+print(classification_report(y_test, y_pred_shallow))
+tree_deep = DecisionTreeClassifier(
+    random_state=42
+)
+
+tree_deep.fit(X_train, y_train)
+
+y_pred_deep = tree_deep.predict(X_test)
+print("Deep Tree")
+print(confusion_matrix(y_test, y_pred_deep))
+print(classification_report(y_test, y_pred_deep))
+print("Train accuracy (deep):", tree_deep.score(X_train, y_train))
+print("Test accuracy (deep):", tree_deep.score(X_test, y_test))
+import pandas as pd
+
+feature_importance = pd.Series(
+    tree_deep.feature_importances_,
+    index=X.columns
+).sort_values(ascending=False)
+
+print(feature_importance)
+
+from sklearn.ensemble import RandomForestClassifier
+
+rf = RandomForestClassifier(
+    n_estimators=200,
+    random_state=42,
+    n_jobs=-1
+)
+
+rf.fit(X_train, y_train)
+
+y_pred_rf = rf.predict(X_test)
+
+from sklearn.metrics import confusion_matrix, classification_report
+
+print("Random Forest")
+print(confusion_matrix(y_test, y_pred_rf))
+print(classification_report(y_test, y_pred_rf))
+
+print("Train accuracy:", rf.score(X_train, y_train))
+print("Test accuracy:", rf.score(X_test, y_test))
+
+rf_importance = pd.Series(
+    rf.feature_importances_,
+    index=X.columns
+).sort_values(ascending=False)
+
+print(rf_importance)
